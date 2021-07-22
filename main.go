@@ -18,6 +18,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -127,10 +128,16 @@ func (b *blinktPodImpl) addPod(pod *v1.Pod) {
 		if color == "" {
 			color = defaultPodColor
 		}
-		brightness := pod.Labels["blinktBrightness"]
-		if brightness == "" {
-			brightness = defaultPixelBrightness
-		}		
+		brightness := defaultPixelBrightness
+		brightnessStr := pod.Labels["blinktBrightness"]
+		if brightnessStr != "" {
+			brightnessFloat, err := strconv.ParseFloat(brightnessStr, 64)
+			if err != nil {
+				log.Println("Warning: pod ", pod.Name, " has invalid brightness label value ", brightnessStr)
+			} else {
+				brightness = brightnessFloat
+			}
+		}
 		newPixel := numPods - 1
 		b.bl.FlashPixel(newPixel, 2, defaultStartColor)
 		b.bl.SetPixelHex(newPixel, color)
@@ -169,15 +176,21 @@ func (b *blinktPodImpl) removePod(pod *v1.Pod) {
 				b.bl.SetPixel(pixel, 0, 0, 0)
 			}
 		}
-		for pixel, pod := range b.podList[:endIdx] {
-			color := pod.Labels["blinktColor"]
+		for pixel, curPod := range b.podList[:endIdx] {
+			color := curPod.Labels["blinktColor"]
 			if color == "" {
 				color = defaultPodColor
 			}
-			brightness := pod.Labels["blinktBrightness"]
-			if brightness == "" {
-				brightness = defaultPixelBrightness
-			}			
+			brightness := defaultPixelBrightness
+			brightnessStr := curPod.Labels["blinktBrightness"]
+			if brightnessStr != "" {
+				brightnessFloat, err := strconv.ParseFloat(brightnessStr, 64)
+				if err != nil {
+					log.Println("Warning: pod ", curPod.Name, " has invalid brightness label value ", brightnessStr)
+				} else {
+					brightness = brightnessFloat
+				}
+			}
 			b.bl.SetPixelHex(pixel, color)
 			b.bl.SetPixelBrightness(pixel, brightness)
 		}
