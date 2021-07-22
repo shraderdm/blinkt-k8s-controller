@@ -127,10 +127,14 @@ func (b *blinktPodImpl) addPod(pod *v1.Pod) {
 		if color == "" {
 			color = defaultPodColor
 		}
+		brightness := pod.Labels["blinktBrightness"]
+		if brightness == "" {
+			brightness = defaultPixelBrightness
+		}		
 		newPixel := numPods - 1
 		b.bl.FlashPixel(newPixel, 2, defaultStartColor)
 		b.bl.SetPixelHex(newPixel, color)
-		b.bl.SetPixelBrightness(newPixel, defaultPixelBrightness)
+		b.bl.SetPixelBrightness(newPixel, brightness)
 		b.bl.Show()
 	}
 }
@@ -170,8 +174,12 @@ func (b *blinktPodImpl) removePod(pod *v1.Pod) {
 			if color == "" {
 				color = defaultPodColor
 			}
+			brightness := pod.Labels["blinktBrightness"]
+			if brightness == "" {
+				brightness = defaultPixelBrightness
+			}			
 			b.bl.SetPixelHex(pixel, color)
-			b.bl.SetPixelBrightness(pixel, defaultPixelBrightness)
+			b.bl.SetPixelBrightness(pixel, brightness)
 		}
 		b.bl.Show()
 	}
