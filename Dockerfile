@@ -1,4 +1,4 @@
 FROM scratch
-COPY main /
+COPY bin/controller /
 
-CMD ["/main"]
+CMD ["/controller"]
