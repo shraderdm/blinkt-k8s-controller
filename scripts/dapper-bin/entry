@@ -1,0 +1,6 @@
+#!/bin/bash
+set -ex
+
+export PATH="/workdir/source/scripts/dapper-bin:${PATH}"
+
+exec "$@"
