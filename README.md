@@ -20,7 +20,7 @@ A Raspberry Pi-based Kubernetes cluster. Hypriot has a good [blog post](https://
 
 Physically install a [Pimoroni Blinkt](https://shop.pimoroni.com/products/blinkt) on all the Raspberry Pi worker nodes you want to use for display. **No additional sofware or setup is required for the Blinkt**.
 
-*Note: For greater control, every node equiped with a Blinkt should be labeled with `deviceType: blinkt`. A [nodeSelector](https://kubernetes.io/docs/admin/daemons/#running-pods-on-only-some-nodes) can then be used to insure that only labeled nodes run the Controller Pod. For example:*
+*Note: For greater control, every node eqquiped with a Blinkt should be labeled with `deviceType: blinkt`. A [nodeSelector](https://kubernetes.io/docs/admin/daemons/#running-pods-on-only-some-nodes) can then be used to insure that only labeled nodes run the Controller Pod. For example:*
 
 ```sh
 kubectl label node <nodename> deviceType=blinkt
@@ -60,14 +60,21 @@ spec:
 
 ## Building Your Own ##
 
-You need a properly configured [Go environment](https://golang.org) and the [Glide](https://glide.sh) vendoring command. Just edit the `main.go` file and run:
+You need a properly configured [Go environment](https://golang.org). Just edit the `cmd/controller/main.go` file and run:
 
 ```sh
-glide update --strip-vendor
-./build.sh
+go mod tidy
+./scripts/dapper-bin/build
 ```
 
-to cross-compile to a local binary named `main`. You can then edit and run the `dockerize.sh` script to create your own Docker Image repository and tags. You then have to upload it to your container registry of choice and modify the DaemonSet Descriptor to use your new Image Repo instead.
+to cross-compile to a local binary named `command` in the `./bin` folder.
+
+Alternatively, you can use [dapper](https://github.com/rancher/dapper) and Docker to avoid installing any project-specific dependencies; run `dapper build` to cross-compile a local binary named `command` in the `./bin` folder.
+
+You can then edit and run the `dockerize.sh` script to create your own Docker Image repository and tags.
+You then have to upload it to your container registry of choice and modify the DaemonSet Descriptor to use your new Image Repo instead.
+
+
 
 ## License ##
 

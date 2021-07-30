@@ -1,0 +1,42 @@
+FROM ubuntu:20.04
+
+ENV DAPPER_SOURCE /workdir/source/
+ENV DAPPER_OUTPUT ./bin
+
+# create working directory
+RUN mkdir -p /workdir/tmp
+
+# install packages
+RUN apt-get update && \
+    apt-get install -y \
+      ca-certificates curl git
+
+# enable indirect variable references
+RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
+
+WORKDIR /workdir/tmp
+
+# ---
+# install Go
+# go environment variables
+RUN mkdir -p /go/src /go/bin
+ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
+
+ENV GOLANG_VERSION=1.16.6
+
+# install golang cli
+RUN curl -sLf "https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz" | tar -xzf - -C /usr/local
+
+# ---
+# clean up tmp dir, just in case
+RUN rm -rf /workdir/tmp
+
+
+WORKDIR ${DAPPER_SOURCE}
+
+# ---
+# download and install go mod deps
+COPY go.mod go.sum /workdir/source/
+RUN go mod download
+
+ENTRYPOINT ["./scripts/dapper-bin/entry"]
